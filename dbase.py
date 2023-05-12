@@ -41,16 +41,15 @@ def addAlt(_user):
 
     if len(list(user.clone())) != 0:
         user = user.next()
-        if user["alt"] == "":
-            users.update_one(
-                { "user": _user["user"] },
-                { "$set": {
-                        "alt": _user["alt"]
-                    }
+        users.update_one(
+            { "user": _user["user"] },
+            { "$set": {
+                    "alt": _user["alt"]
                 }
-            )
-
-            return True
+            }
+        )
+        
+        return True
         
     return False
 
@@ -75,3 +74,59 @@ def delTemp(_user):
     temp.delete_many({
         "user": _user["user"]
     })
+
+def verifyAuthToken(_user):
+    user = users.find({
+        "authToken": _user["authToken"]
+    })
+
+    if len(list(user.clone())) == 1:
+        user = user.next()
+        if user["user"] == _user["user"] or user["alt"] == _user["user"]:
+            return True
+    
+    return False
+
+def updateCSRF(_user):
+    user = users.find({
+        "user": _user["user"]
+    })
+
+    alt = users.find({
+        "alt": _user["user"]
+    })
+
+    if len(list(user.clone())) == 0:
+        if len(list(alt.clone())) == 0:
+            return False
+        
+        else:
+            users.update_one(
+                { "alt": _user["user"] },
+                { "$set": {
+                        "csrf": _user["csrf"]
+                    }
+                }
+            )
+            return True
+    else:
+        users.update_one(
+            { "user": _user["user"] },
+            { "$set": {
+                    "csrf": _user["csrf"]
+                }
+            }
+        )
+        return True
+
+def verifyCSRF(_user):
+    user = users.find({
+        "csrf": _user["csrf"]
+    })
+
+    if len(list(user.clone())) == 1:
+        user = user.next()
+        if user["user"] == _user["user"] or user["alt"] == _user["user"]:
+            return True
+    
+    return False

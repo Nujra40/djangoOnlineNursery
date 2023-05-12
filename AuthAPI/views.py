@@ -4,6 +4,8 @@ import random
 from hashlib import sha256
 import json
 
+SERVER_SECRET = "8255d89e73529ed5b9879e1921c06661d8ea817198071913817b6d9a3561f9a2"
+
 from dbase import (
     authenticate,
     isPresent,
@@ -11,12 +13,35 @@ from dbase import (
     addAlt,
     addTemp,
     verifyOTP,
-    delTemp
+    delTemp,
+    verifyAuthToken,
+    updateCSRF,
+    verifyCSRF
 )
+
+def genAuthToken():
+    _token = ""
+
+    for i in range(64):
+        _token += random.choice("0123456789abcdef")
+    
+    return _token
+
+def genCSRF(user):
+    _token = genAuthToken()
+
+    return (updateCSRF({
+        "user": user["email/phone"],
+        "csrf": _token
+    }), _token)
 
 def _authenticate(user):
     
     user["user"] = user["email/phone"]
+
+    if "authToken" in user and user["authToken"] != "":
+        if "csrf" in user and user["csrf"] != "":
+            return verifyAuthToken(user) and verifyCSRF(user)
     
     salt = isPresent(user)
     if salt != -1:
@@ -42,6 +67,10 @@ def authAPILogin(request):
         user = json.loads(request.body.decode())
 
         if _authenticate(user):
+            updateCSRF({
+                "user": user["user"],
+                "csrf": SERVER_SECRET
+            })
             return JsonResponse({
                 "authAPILogin-response": "Success"
             })
@@ -75,7 +104,10 @@ def authAPIAddAlt(request):
         
 
         if _authenticate(user):
-            
+            updateCSRF({
+                "user": user["user"],
+                "csrf": SERVER_SECRET
+            })
             user["user"] = user["email/phone"]
             if addAlt(user):
                 return JsonResponse({
@@ -109,21 +141,41 @@ def authAPISignUp(request):
                 
             salt = str(int(random.random() * 1000000))
             password_salted_sha256 = sha256((salt + user["password"]).encode()).hexdigest()
+            authToken = genAuthToken()
             _user = {
                 "user": user["user"],
                 "salt": salt,
                 "password_salted_sha256": password_salted_sha256,
                 "fname": user["fname"],
                 "lname": user["lname"],
-                "alt": ""
+                "alt": "",
+                "authToken": authToken
             }
             add(_user)
             delTemp(_user)
-            return JsonResponse({
+            res = JsonResponse({
                 "authAPISignUp-response": "Success"
             })
+            res.set_cookie(key="authToken", value=authToken)
+            username = user["user"]
+            res.set_cookie(key="user", value=username)
+            return res
     
     return JsonResponse({
         "authAPISignUp-response": "Failed"
+    })
+
+def authAPIgetCSRF(request):
+    if request.method == "POST":
+        user = json.loads(request.body.decode())
+
+        res = genCSRF(user)
+        if res[0]:
+            return JsonResponse({
+                "csrf": res[1]
+            })
+    
+    return JsonResponse({
+        "csrf": "Invalid User"
     })
 

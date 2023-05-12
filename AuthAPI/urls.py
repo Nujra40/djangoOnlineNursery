@@ -7,4 +7,5 @@ urlpatterns = [
     path("login/", views.authAPILogin),
     path("signup/", views.authAPISignUp),
     path("update/", views.authAPIAddAlt),
+    path("csrf/", views.authAPIgetCSRF)
 ]
