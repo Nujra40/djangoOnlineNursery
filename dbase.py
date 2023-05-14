@@ -162,3 +162,20 @@ def verifyCSRF(_user):
             return True
     
     return False
+
+def getAuthToken(_user):
+    user = users.find({
+        "user": _user["user"]
+    })
+
+    if len(list(user.clone())) == 1:
+        return user["authToken"]
+    
+    alt = users.find({
+        "alt": _user["user"]
+    })
+
+    if len(list(alt.clone())) == 1:
+        return alt["authToken"]
+    
+    return ""

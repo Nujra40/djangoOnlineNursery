@@ -19,7 +19,8 @@ from dbase import (
     verifyAuthToken,
     updateCSRF,
     verifyCSRF,
-    updateAuthToken
+    updateAuthToken,
+    getAuthToken
 )
 
 def genAuthToken():
@@ -79,7 +80,11 @@ def authAPILogin(request):
 
             authToken = ""
             if "authToken" not in user:
-                authToken = genAuthToken()
+                aU = getAuthToken(user)
+                if aU == '':
+                    authToken = genAuthToken()
+                else:
+                    authToken = aU
                 updateAuthToken({
                     "user": user["user"],
                     "authToken": authToken
