@@ -119,6 +119,38 @@ def updateCSRF(_user):
         )
         return True
 
+def updateAuthToken(_user):
+    user = users.find({
+        "user": _user["user"]
+    })
+
+    alt = users.find({
+        "alt": _user["user"]
+    })
+
+    if len(list(user.clone())) == 0:
+        if len(list(alt.clone())) == 0:
+            return False
+        
+        else:
+            users.update_one(
+                { "alt": _user["user"] },
+                { "$set": {
+                        "authToken": _user["authToken"]
+                    }
+                }
+            )
+            return True
+    else:
+        users.update_one(
+            { "user": _user["user"] },
+            { "$set": {
+                    "authToken": _user["authToken"]
+                }
+            }
+        )
+        return True
+
 def verifyCSRF(_user):
     user = users.find({
         "csrf": _user["csrf"]

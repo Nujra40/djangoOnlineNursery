@@ -4,6 +4,8 @@ import random
 from hashlib import sha256
 import json
 
+from mail.mail import sendMail
+
 SERVER_SECRET = "8255d89e73529ed5b9879e1921c06661d8ea817198071913817b6d9a3561f9a2"
 
 from dbase import (
@@ -16,7 +18,8 @@ from dbase import (
     delTemp,
     verifyAuthToken,
     updateCSRF,
-    verifyCSRF
+    verifyCSRF,
+    updateAuthToken
 )
 
 def genAuthToken():
@@ -66,13 +69,25 @@ def authAPILogin(request):
     if request.method == 'POST':
         user = json.loads(request.body.decode())
 
+        print(user)
+
         if _authenticate(user):
             updateCSRF({
                 "user": user["user"],
                 "csrf": SERVER_SECRET
             })
+
+            authToken = ""
+            if "authToken" not in user:
+                authToken = genAuthToken()
+                updateAuthToken({
+                    "user": user["user"],
+                    "authToken": authToken
+                })
+            
             return JsonResponse({
-                "authAPILogin-response": "Success"
+                "authAPILogin-response": "Success",
+                "authToken": authToken
             })
 
     return JsonResponse({
@@ -125,9 +140,12 @@ def authAPISignUp(request):
 
         user["user"] = user["email/phone"]
 
+        print(user)
+
         if isPresent(user) == -1:
             if "otp" not in user or user["otp"] == "":
-                otp = str(int(random.random() * 1000000))
+                otp = str(int(random.random() * 10000))
+                sendMail(user["user"], user["fname"], otp)
                 user.update({ "otp": otp })
                 addTemp(user)
                 return JsonResponse({
@@ -154,11 +172,9 @@ def authAPISignUp(request):
             add(_user)
             delTemp(_user)
             res = JsonResponse({
-                "authAPISignUp-response": "Success"
+                "authAPISignUp-response": "Success",
+                "authToken": authToken
             })
-            res.set_cookie(key="authToken", value=authToken)
-            username = user["user"]
-            res.set_cookie(key="user", value=username)
             return res
     
     return JsonResponse({
