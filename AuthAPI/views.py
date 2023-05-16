@@ -44,6 +44,8 @@ def genCSRF(user):
 def _authenticate(user):
     
     user["user"] = user["email/phone"]
+    if user["user"] == "":
+        return False
 
     if "authToken" in user and user["authToken"] != "":
         if "csrf" in user and user["csrf"] != "":
