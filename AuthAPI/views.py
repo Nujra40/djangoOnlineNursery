@@ -20,7 +20,9 @@ from dbase import (
     updateCSRF,
     verifyCSRF,
     updateAuthToken,
-    getAuthToken
+    getAuthToken,
+    setOTP,
+    updatePassword
 )
 
 def genAuthToken():
@@ -198,5 +200,44 @@ def authAPIgetCSRF(request):
     
     return JsonResponse({
         "csrf": "Invalid User"
+    })
+
+def authAPIforgotPassword(request):
+    if request.method == "POST":
+        user = json.loads(request.body.decode())
+
+        user["user"] = user["email/phone"]
+
+        salt = isPresent(user)
+        if salt != -1:
+            if "otp" in user:
+                if verifyOTP(user, collection="users"):
+                    if "new-password" in user:
+                        password_salted_sha256 = sha256((salt + user["new-password"]).encode()).hexdigest()
+                        updatePassword(user, password_salted_sha256)
+                        setOTP(user, SERVER_SECRET)
+
+                        return JsonResponse({
+                            "authAPIforgotPassword-response": "Password Changed"
+                        })
+
+                    return JsonResponse({
+                        "authAPIforgotPassword-response": "Matched"
+                    })
+                
+                else:
+                    return JsonResponse({
+                        "authAPIforgotPassword-response": "Failed"
+                    })
+
+            otp = str(int(random.random() * 10000))
+            sendMail(user["user"], setOTP(user, otp), otp)
+        
+            return JsonResponse({
+                "authAPIforgotPassword-response": "OTP Verification Required"
+            })
+        
+    return JsonResponse({
+        "authAPIforgotPassword-response": "Failed"
     })
 
