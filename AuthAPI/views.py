@@ -7,6 +7,7 @@ import json
 from mail.mail import sendMail
 
 SERVER_SECRET = "8255d89e73529ed5b9879e1921c06661d8ea817198071913817b6d9a3561f9a2"
+OAuth2_KEY = "829309063059-62n8osovkljiguccn24fmt2kmeaoohf9.apps.googleusercontent.com"
 
 from dbase import (
     authenticate,
@@ -243,3 +244,52 @@ def authAPIforgotPassword(request):
         "authAPIforgotPassword-response": "Failed"
     })
 
+def authAPIOAuth2(request):
+    if request.method == "POST":
+        user = json.loads(request.body.decode())
+
+        if not user["OAuth2_key"] == OAuth2_KEY:
+            return JsonResponse({
+                "authAPIOAuth2-response": "Failed"
+            })
+        
+        user["user"] = user["email"]
+        user["email/phone"] = user["email"]
+        user["password"] = user["name"] + user["sub"] + user["email"] + SERVER_SECRET
+
+        salt = isPresent(user)
+        if salt != -1:
+
+            if _authenticate(user):
+                authToken = genAuthToken()
+                updateAuthToken({
+                    "user": user["user"],
+                    "authToken": authToken
+                })
+
+                return JsonResponse({
+                    "authAPIOAuth2-response": "Success",
+                    "authToken": authToken
+                })
+            
+            return JsonResponse({
+                "authAPIOAuth2-response": "Failed"
+            })
+        
+        salt = str(int(random.random() * 1000000))
+        password_salted_sha256 = sha256((salt + user["password"]).encode()).hexdigest()
+        authToken = genAuthToken()
+        _user = {
+            "user": user["user"],
+            "salt": salt,
+            "password_salted_sha256": password_salted_sha256,
+            "fname": user["name"].split()[0],
+            "lname": user["name"].split()[-1],
+            "alt": "",
+            "authToken": authToken
+        }
+        add(_user)
+        return JsonResponse({
+            "authAPIOAuth2-response": "Success",
+            "authToken": authToken
+        })
