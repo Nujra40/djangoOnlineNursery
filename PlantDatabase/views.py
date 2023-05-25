@@ -59,4 +59,22 @@ def getDetails(request):
     else:
         return JsonResponse({"status": "failure"})
     
+def addCartUpdate(request):
+
+    if(request.method == 'POST'):
+        data = json.loads(request.body.decode())
+        id = data["id"]
+
+        plantDetail = Details.objects.get(id = id)
+
+        if(plantDetail.Add_to_cart == "Add"):
+            plantDetail.Add_to_cart = "Added"
+        else:
+            plantDetail.Add_to_cart = "Add"
+        
+        plantDetail.save()
+
+        return JsonResponse({"status": "success"})
+    else:
+        return JsonResponse({"status": "failure"})
 
