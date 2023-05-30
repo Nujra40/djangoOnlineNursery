@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@google-pay/button-angular": "^3.0.9"
+  }
+}

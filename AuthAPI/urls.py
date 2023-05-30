@@ -9,5 +9,6 @@ urlpatterns = [
     path("update/", views.authAPIAddAlt),
     path("csrf/", views.authAPIgetCSRF),
     path("reset/", views.authAPIforgotPassword),
-    path("OAuth2/", views.authAPIOAuth2)
+    path("OAuth2/", views.authAPIOAuth2),
+    path("cartFunction/", views.cartFunction)
 ]

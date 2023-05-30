@@ -23,7 +23,12 @@ from dbase import (
     updateAuthToken,
     getAuthToken,
     setOTP,
-    updatePassword
+    updatePassword,
+    addPlant,
+    removePlant,
+    getCartPlants,
+    incQuantity,
+    decQuantity,
 )
 
 def genAuthToken():
@@ -293,3 +298,50 @@ def authAPIOAuth2(request):
             "authAPIOAuth2-response": "Success",
             "authToken": authToken
         })
+    
+def cartFunction(request):
+
+    if(request.method == "POST"):
+        data = json.loads(request.body.decode())
+        #return JsonResponse({"status": "plant added"})
+        if(data["function"] == "add"):
+            if(addPlant(data["email"], data["plant_id"])):
+                return JsonResponse(
+                    {"status": "plant added"},
+                )
+            else:
+                return JsonResponse({"status": "failed"})
+            
+        elif(data["function"] == "remove"):
+            if(removePlant(data["email"], data["plant_id"])):
+                return JsonResponse(
+                    {"status": "plant removed"},
+                )
+            else:
+                return JsonResponse({"status": "failed"})
+            
+        elif(data["function"] == "send cart details"):
+            
+            return JsonResponse({
+                "cart_plants": getCartPlants(data["email"])
+            })
+        
+        elif(data["function"] == "increment"):
+            if(incQuantity(data["email"], data["plant_id"])):
+                return JsonResponse({
+                    "status": "incremented"
+                })
+            else:
+                return JsonResponse({"status": "failed"})
+            
+        elif(data["function"] == "decrement"):
+            if(decQuantity(data["email"], data["plant_id"])):
+                return JsonResponse({
+                    "status": "decremented"
+                })
+            else:
+                return JsonResponse({"status": "failed"})
+            
+    else:
+        return JsonResponse({"status": "failed"})
+        

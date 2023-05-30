@@ -250,3 +250,92 @@ def updatePassword(_user, password_salted_sha256):
             }
         )
         return True
+    
+def addPlant(_email, _plantId):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        cart_plants = user.get("cart_plants", {})
+        if str(_plantId) not in cart_plants:
+            cart_plants[str(_plantId)] = [1, "Added"]
+            users.update_one(
+                {"user": _email},
+                {"$set": {
+                    "cart_plants": cart_plants
+                    }
+                }
+            )
+            return True
+        else:
+            return False
+    else:
+        return False
+    
+def removePlant(_email, _plantId):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        cart_plants = user.get("cart_plants")
+        if str(_plantId) in cart_plants:
+            cart_plants.pop(str(_plantId))
+            users.update_one(
+                {"user": _email},
+                {"$set": {
+                    "cart_plants": cart_plants
+                    }
+                }
+            )
+            return True
+        else:
+            return False
+    else:
+        return False
+    
+def getCartPlants(_email):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        cart_plants =  user.get("cart_plants")
+        print(cart_plants)
+        return cart_plants
+    
+def incQuantity(_email, _plantId):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        cart_plants = user.get("cart_plants")
+        cart_plants[str(_plantId)][0] = cart_plants[str(_plantId)][0] + 1
+        users.update_one(
+            {"user": _email},
+            {"$set": {"cart_plants": cart_plants}}
+        )
+        return True
+    else:
+        return False
+    
+def decQuantity(_email, _plantId):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        cart_plants = user.get("cart_plants")
+        cart_plants[str(_plantId)][0] = cart_plants[str(_plantId)][0] - 1
+        users.update_one(
+            {"user": _email},
+            {"$set": {"cart_plants": cart_plants}}
+        )
+        return True
+    else:
+        return False
+
+
+
