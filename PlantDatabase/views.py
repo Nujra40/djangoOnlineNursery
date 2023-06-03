@@ -71,5 +71,35 @@ def getDetails(request):
     else:
         return JsonResponse({"status": "failure"})
     
+def update(request):
+    if (request.method == 'POST'):
+
+        data = json.loads(request.body.decode())
+        if(data["admin_mail"] == "abijash2731@gmail.com"):
+            Obj = Details.objects.get(id=data["id"])
+            Obj.Name = data["up_name"]
+            Obj.type = data["up_type"]
+            Obj.Properties = data["up_properties"]
+            Obj.Price = data["up_price"]
+            Obj.Scientific_Name = data["up_sname"]
+            Obj.save()
+            print(Obj.Name)
+
+            return JsonResponse({
+                "status": "updated"
+            })
+
+        else:
+            return JsonResponse({
+                "status": "invalid email"
+            })
+
+    else:
+        return JsonResponse({"status": "failure"})
+    
+
+    
+
+    
 
 
