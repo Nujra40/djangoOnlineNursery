@@ -251,6 +251,29 @@ def updatePassword(_user, password_salted_sha256):
         )
         return True
     
+def getCsrf(_user):
+    user = users.find_one({
+        "user": _user
+    })
+
+    if user:
+        csrf = user.get("csrf")
+        return csrf
+    
+    return None
+
+def getAuth(_user):
+    user = users.find_one({
+        "user": _user
+    })
+    print(_user)
+
+    if user:
+        auth = user.get("authToken")
+        return auth
+    
+    return None
+    
 def addPlant(_email, _plantId):
     user = users.find_one({
         "user": _email
