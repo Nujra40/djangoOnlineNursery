@@ -79,8 +79,6 @@ def update(request):
     if (request.method == 'POST'):
 
         data = json.loads(request.body.decode())
-        print(getAuth(data["admin_mail"]), ":auth:")
-        print(getCsrf(data["admin_mail"]), ":csrf:")
         if(data["admin_mail"] == "abijash2731@gmail.com"):
             if(data["auth"] == getAuth(data["admin_mail"]) and data["csrf"] == getCsrf(data["admin_mail"])):
                 DatabaseObject = Details.objects.get(id=data["id"])
@@ -90,7 +88,6 @@ def update(request):
                 DatabaseObject.Price = data["update_price"]
                 DatabaseObject.Scientific_Name = data["update_sname"]
                 DatabaseObject.save()
-                print(DatabaseObject.Name)
 
                 return JsonResponse({
                     "status": "Updated"
