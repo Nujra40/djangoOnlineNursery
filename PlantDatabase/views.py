@@ -75,7 +75,7 @@ def update(request):
     if (request.method == 'POST'):
 
         data = json.loads(request.body.decode())
-        if(data["admin_mail"] == "abijash2731@gmail.com"):
+        if(data["admin_mail"] == "tatwamasi.admin"):
             Obj = Details.objects.get(id=data["id"])
             Obj.Name = data["up_name"]
             Obj.type = data["up_type"]
