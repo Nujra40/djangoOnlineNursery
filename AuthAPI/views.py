@@ -29,6 +29,8 @@ from dbase import (
     getCartPlants,
     incQuantity,
     decQuantity,
+    getUserDetails,
+    saveUserDetails
 )
 
 def genAuthToken():
@@ -298,7 +300,23 @@ def authAPIOAuth2(request):
             "authAPIOAuth2-response": "Success",
             "authToken": authToken
         })
-    
+
+def userFunction(request):
+    if(request.method == "POST"):
+        data = json.loads(request.body.decode())
+        if(data["function"] == "send user details"):
+            user_details = getUserDetails(data["email"])
+            return JsonResponse({"status": "success", "user_details": user_details})
+        
+        if(data["function"] == "save changes"):
+            if(saveUserDetails(data["email"], data["username"])):
+                return JsonResponse({"status": "saved"})
+            else:
+                return JsonResponse({"status": "error"})
+        else:
+            return JsonResponse({"status": "failed"})
+
+
 def cartFunction(request):
 
     if(request.method == "POST"):
