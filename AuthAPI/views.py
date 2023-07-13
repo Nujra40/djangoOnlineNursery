@@ -1,10 +1,12 @@
 from django.http import JsonResponse
 
 import random
+import time
 from hashlib import sha256
 import json
 
 from mail.mail import sendMail
+
 
 SERVER_SECRET = "8255d89e73529ed5b9879e1921c06661d8ea817198071913817b6d9a3561f9a2"
 OAuth2_KEY = "829309063059-62n8osovkljiguccn24fmt2kmeaoohf9.apps.googleusercontent.com"
@@ -30,8 +32,11 @@ from dbase import (
     incQuantity,
     decQuantity,
     getUserDetails,
-    saveUserDetails
+    saveUserDetails,
+    placeOrder
 )
+
+sequence_no = "1"
 
 def genAuthToken():
     _token = ""
@@ -301,7 +306,16 @@ def authAPIOAuth2(request):
             "authToken": authToken
         })
 
+def generateOrderNo(seq_no):
+    sequence_no = str(seq_no).zfill(5)
+    timestamp = int(time.time())
+    random_component = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=4))
+
+    order_number = f"ORDTON-{sequence_no}-{timestamp}-{random_component}"
+    return order_number
+
 def userFunction(request):
+    global sequence_no
     if(request.method == "POST"):
         data = json.loads(request.body.decode())
         if(data["function"] == "send user details"):
@@ -313,6 +327,14 @@ def userFunction(request):
                 return JsonResponse({"status": "saved"})
             else:
                 return JsonResponse({"status": "error"})
+            
+        elif(data["function"] == "place order"):
+            sequence_no = str(int(sequence_no) + 1)
+            if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), data["orders"])):
+                return JsonResponse({"status": "success"})
+            else:
+                return JsonResponse({"status": "failed"})
+
         else:
             return JsonResponse({"status": "failed"})
 

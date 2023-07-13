@@ -390,7 +390,27 @@ def saveUserDetails(_email, _username):
     
     else:
         return False
+
+def placeOrder(_email, _order_no, _order_details):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        orders = user.get("order_list", [])
+        orders.append({
+            "order_no": _order_no,
+            "order_details": _order_details
+        })
+        users.update_one(
+            {"user": _email},
+            {"$set": {"order_list": orders}}
+        )
+        print(user.get("order_list", []))
+        return True
     
+    else: 
+        return False
 
 
 
