@@ -391,7 +391,7 @@ def saveUserDetails(_email, _username):
     else:
         return False
 
-def placeOrder(_email, _order_no, _order_details):
+def placeOrder(_email, _order_no, _order_date, _order_details):
     user = users.find_one({
         "user": _email
     })
@@ -400,6 +400,7 @@ def placeOrder(_email, _order_no, _order_details):
         orders = user.get("order_list", [])
         orders.append({
             "order_no": _order_no,
+            "order_date": _order_date, 
             "order_details": _order_details
         })
         users.update_one(
@@ -411,6 +412,19 @@ def placeOrder(_email, _order_no, _order_details):
     
     else: 
         return False
+
+def getOrderList(_email):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        orders = user.get("order_list", [])
+        print(orders)
+        return orders
+    
+    else:
+        return None
 
 
 

@@ -4,6 +4,7 @@ import random
 import time
 from hashlib import sha256
 import json
+import datetime
 
 from mail.mail import sendMail
 
@@ -33,7 +34,8 @@ from dbase import (
     decQuantity,
     getUserDetails,
     saveUserDetails,
-    placeOrder
+    placeOrder,
+    getOrderList
 )
 
 sequence_no = "1"
@@ -330,8 +332,15 @@ def userFunction(request):
             
         elif(data["function"] == "place order"):
             sequence_no = str(int(sequence_no) + 1)
-            if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), data["orders"])):
+            if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"])):
                 return JsonResponse({"status": "success"})
+            else:
+                return JsonResponse({"status": "failed"})
+        
+        elif(data["function"] == "send order list"):
+            order_list = getOrderList(data['email'])
+            if(order_list):
+                return JsonResponse({"order_list": order_list, "status": "success"})
             else:
                 return JsonResponse({"status": "failed"})
 
