@@ -5,6 +5,10 @@ import json
 from .models import Details
 import time
 import random
+from dbase import (
+    getAuth,
+    getCsrf
+)
 
 def generateOrderNo(seq_no):
     sequence_no = str(seq_no).zfill(5)
@@ -13,6 +17,27 @@ def generateOrderNo(seq_no):
 
     order_number = f"ORDTON-{sequence_no}-{timestamp}-{random_component}"
     return order_number
+
+def deleteProduct(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode())
+
+        if (
+            data["user"] == "tatwamasi.admin" and
+            data["csrf"] == getCsrf(data["user"]) and
+            data["auth"] == getAuth(data["user"])
+        ):
+            _product = Details.objects.get(id=data["id"])
+            _product.delete()
+            
+            return JsonResponse({
+                "status": "delete-success"
+            })
+            
+            
+    return JsonResponse({
+        "status": "delete-failed"
+    })
 
 
 
@@ -32,17 +57,17 @@ def setDetails(request):
         Quantity = data["quantity"]
         AddToCart = data["addToCart"]
 
-        Obj = Details()
-        Obj.Name = Name
-        Obj.Scientific_Name = Sname
-        Obj.Price = Price
-        Obj.type = Type
-        Obj.Properties = Properties
-        Obj.Img_path = Img
-        Obj.Initial_quantity = InitialQ
-        Obj.Quantity = Quantity
-        Obj.Add_to_cart = AddToCart 
-        Obj.save()
+        DatabaseObject = Details()
+        DatabaseObject.Name = Name
+        DatabaseObject.Scientific_Name = Sname
+        DatabaseObject.Price = Price
+        DatabaseObject.type = Type
+        DatabaseObject.Properties = Properties
+        DatabaseObject.Img_path = Img
+        DatabaseObject.Initial_quantity = InitialQ
+        DatabaseObject.Quantity = Quantity
+        DatabaseObject.Add_to_cart = AddToCart 
+        DatabaseObject.save()
         
         return JsonResponse({
             "status": "success"
@@ -76,26 +101,30 @@ def update(request):
 
         data = json.loads(request.body.decode())
         if(data["admin_mail"] == "tatwamasi.admin"):
-            Obj = Details.objects.get(id=data["id"])
-            Obj.Name = data["up_name"]
-            Obj.type = data["up_type"]
-            Obj.Properties = data["up_properties"]
-            Obj.Price = data["up_price"]
-            Obj.Scientific_Name = data["up_sname"]
-            Obj.save()
-            print(Obj.Name)
+            if(data["auth"] == getAuth(data["admin_mail"]) and data["csrf"] == getCsrf(data["admin_mail"])):
+                DatabaseObject = Details.objects.get(id=data["id"])
+                DatabaseObject.Name = data["update_name"]
+                DatabaseObject.type = data["update_type"]
+                DatabaseObject.Properties = data["update_properties"]
+                DatabaseObject.Price = data["update_price"]
+                DatabaseObject.Scientific_Name = data["update_sname"]
+                DatabaseObject.save()
 
-            return JsonResponse({
-                "status": "updated"
-            })
+                return JsonResponse({
+                    "status": "Updated"
+                })
+            else:
+                return JsonResponse({
+                    "status": "Authentication_Failed"
+                })
 
         else:
             return JsonResponse({
-                "status": "invalid email"
+                "status": "Invalid"
             })
 
     else:
-        return JsonResponse({"status": "failure"})
+        return JsonResponse({"status": "Failure"})
     
 
     
