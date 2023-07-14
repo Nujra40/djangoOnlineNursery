@@ -359,6 +359,72 @@ def decQuantity(_email, _plantId):
         return True
     else:
         return False
+    
+def getUserDetails(_email):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        username = user.get("fname")
+        user_email = user.get("user")
+        return {
+            "username": username,
+            "email": user_email 
+        }
+    
+    else: 
+        return None
+    
+def saveUserDetails(_email, _username):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        users.update_one(
+            {"user": _email},
+            {"$set": {"fname": _username}}
+        )
+        return True
+    
+    else:
+        return False
+
+def placeOrder(_email, _order_no, _order_date, _order_details):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        orders = user.get("order_list", [])
+        orders.append({
+            "order_no": _order_no,
+            "order_date": _order_date, 
+            "order_details": _order_details
+        })
+        users.update_one(
+            {"user": _email},
+            {"$set": {"order_list": orders}}
+        )
+        print(user.get("order_list", []))
+        return True
+    
+    else: 
+        return False
+
+def getOrderList(_email):
+    user = users.find_one({
+        "user": _email
+    })
+
+    if user:
+        orders = user.get("order_list", [])
+        print(orders)
+        return orders
+    
+    else:
+        return None
 
 
 
