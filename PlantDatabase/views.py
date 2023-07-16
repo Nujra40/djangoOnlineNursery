@@ -18,6 +18,27 @@ def generateOrderNo(seq_no):
     order_number = f"ORDTON-{sequence_no}-{timestamp}-{random_component}"
     return order_number
 
+def deleteProduct(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode())
+
+        if (
+            data["user"] == "tatwamasi.admin" and
+            data["csrf"] == getCsrf(data["user"]) and
+            data["auth"] == getAuth(data["user"])
+        ):
+            _product = Details.objects.get(id=data["id"])
+            _product.delete()
+            
+            return JsonResponse({
+                "status": "delete-success"
+            })
+            
+            
+    return JsonResponse({
+        "status": "delete-failed"
+    })
+
 
 
 # Create your views here.
@@ -79,7 +100,7 @@ def update(request):
     if (request.method == 'POST'):
 
         data = json.loads(request.body.decode())
-        if(data["admin_mail"] == "abijash2731@gmail.com"):
+        if(data["admin_mail"] == "tatwamasi.admin"):
             if(data["auth"] == getAuth(data["admin_mail"]) and data["csrf"] == getCsrf(data["admin_mail"])):
                 DatabaseObject = Details.objects.get(id=data["id"])
                 DatabaseObject.Name = data["update_name"]
