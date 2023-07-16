@@ -106,7 +106,7 @@ def authAPILogin(request):
                     authToken = aU
                 updateAuthToken({
                     "user": user["user"],
-                    "authToken": authToken
+                    "authToken": authToken 
                 })
             
             return JsonResponse({
@@ -325,20 +325,21 @@ def userFunction(request):
             return JsonResponse({"status": "success", "user_details": user_details})
         
         if(data["function"] == "save changes"):
-            if(saveUserDetails(data["email"], data["username"])):
+            if(saveUserDetails(data["email"], data["username"], data["auth"])):
                 return JsonResponse({"status": "saved"})
             else:
                 return JsonResponse({"status": "error"})
             
         elif(data["function"] == "place order"):
             sequence_no = str(int(sequence_no) + 1)
-            if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"])):
+            if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"])):
                 return JsonResponse({"status": "success"})
             else:
                 return JsonResponse({"status": "failed"})
         
         elif(data["function"] == "send order list"):
             order_list = getOrderList(data['email'])
+            order_list.reverse()
             if(order_list):
                 return JsonResponse({"order_list": order_list, "status": "success"})
             else:
@@ -352,7 +353,6 @@ def cartFunction(request):
 
     if(request.method == "POST"):
         data = json.loads(request.body.decode())
-        #return JsonResponse({"status": "plant added"})
         if(data["function"] == "add"):
             if(addPlant(data["email"], data["plant_id"])):
                 return JsonResponse(

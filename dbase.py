@@ -376,39 +376,43 @@ def getUserDetails(_email):
     else: 
         return None
     
-def saveUserDetails(_email, _username):
+def saveUserDetails(_email, _username, _auth):
     user = users.find_one({
         "user": _email
     })
 
     if user:
-        users.update_one(
-            {"user": _email},
-            {"$set": {"fname": _username}}
-        )
-        return True
+        auth = user.get("authToken")
+        if getAuth(_email) == auth:
+            users.update_one(
+                {"user": _email},
+                {"$set": {"fname": _username}}
+            )
+            return True
     
     else:
         return False
 
-def placeOrder(_email, _order_no, _order_date, _order_details):
+def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
     user = users.find_one({
         "user": _email
     })
 
     if user:
-        orders = user.get("order_list", [])
-        orders.append({
-            "order_no": _order_no,
-            "order_date": _order_date, 
-            "order_details": _order_details
-        })
-        users.update_one(
-            {"user": _email},
-            {"$set": {"order_list": orders}}
-        )
-        print(user.get("order_list", []))
-        return True
+        auth = user.get("authToken")
+        if getAuth(_email) == auth:
+            orders = user.get("order_list", [])
+            orders.append({
+                "order_no": _order_no,
+                "order_date": _order_date, 
+                "order_details": _order_details
+            })
+            users.update_one(
+                {"user": _email},
+                {"$set": {"order_list": orders}}
+            )
+            print(user.get("order_list", []))
+            return True
     
     else: 
         return False
