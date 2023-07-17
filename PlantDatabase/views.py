@@ -46,32 +46,41 @@ def setDetails(request):
 
     if(request.method == 'POST'):
         data = json.loads(request.body.decode())
-        
-        Name = data["name"]
-        Sname = data["sname"]
-        Price = data["price"]
-        Type = data["type"]
-        Img = data["img"]
-        Properties = data["properties"]
-        InitialQ = data["initialQuantity"]
-        Quantity = data["quantity"]
-        AddToCart = data["addToCart"]
+        if(data["admin_mail"] == "tatwamasi.admin"):
+            if(data["auth"] == getAuth(data["admin_mail"]) and data["csrf"] == getCsrf(data["admin_mail"])):
+                Name = data["name"]
+                Sname = data["sname"]
+                Price = data["price"]
+                Type = data["type"]
+                Img = data["img"]
+                Properties = data["properties"]
+                InitialQ = data["initialQuantity"]
+                Quantity = data["quantity"]
+                AddToCart = data["addToCart"]
 
-        DatabaseObject = Details()
-        DatabaseObject.Name = Name
-        DatabaseObject.Scientific_Name = Sname
-        DatabaseObject.Price = Price
-        DatabaseObject.type = Type
-        DatabaseObject.Properties = Properties
-        DatabaseObject.Img_path = Img
-        DatabaseObject.Initial_quantity = InitialQ
-        DatabaseObject.Quantity = Quantity
-        DatabaseObject.Add_to_cart = AddToCart 
-        DatabaseObject.save()
-        
-        return JsonResponse({
-            "status": "success"
-        })
+                DatabaseObject = Details()
+                DatabaseObject.Name = Name
+                DatabaseObject.Scientific_Name = Sname
+                DatabaseObject.Price = Price
+                DatabaseObject.type = Type
+                DatabaseObject.Properties = Properties
+                DatabaseObject.Img_path = Img
+                DatabaseObject.Initial_quantity = InitialQ
+                DatabaseObject.Quantity = Quantity
+                DatabaseObject.Add_to_cart = AddToCart 
+                DatabaseObject.save()
+                
+                return JsonResponse({
+                    "status": "success"
+                })
+            else:
+                return JsonResponse({
+                    "status": "invalid auth token"
+                })
+        else:
+            return JsonResponse({
+                "status": "You are not admin"
+            })  
     
     else:
         return JsonResponse({
