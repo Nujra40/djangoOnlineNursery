@@ -7,6 +7,7 @@ import json
 import datetime
 
 from mail.mail import sendMail
+import razorpayAPI
 
 
 SERVER_SECRET = "8255d89e73529ed5b9879e1921c06661d8ea817198071913817b6d9a3561f9a2"
@@ -333,7 +334,8 @@ def userFunction(request):
         elif(data["function"] == "place order"):
             sequence_no = str(int(sequence_no) + 1)
             if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"])):
-                return JsonResponse({"status": "success"})
+                if razorpayAPI.verifyPayment(data):
+                    return JsonResponse({"status": "success"})
             else:
                 return JsonResponse({"status": "failed"})
         

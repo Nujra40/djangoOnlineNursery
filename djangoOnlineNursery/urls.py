@@ -20,5 +20,6 @@ app_name = "djangoOnlineNursery"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('AuthAPI.urls')),
-    path('details/', include('PlantDatabase.urls'))
+    path('details/', include('PlantDatabase.urls')),
+    path('rzpay/', include('paymentsAPI.urls'))
 ]
