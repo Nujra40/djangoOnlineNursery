@@ -40,7 +40,6 @@ def deleteProduct(request):
     })
 
 
-
 # Create your views here.
 def setDetails(request):
 
@@ -125,10 +124,3 @@ def update(request):
 
     else:
         return JsonResponse({"status": "Failure"})
-    
-
-    
-
-    
-
-
