@@ -386,7 +386,7 @@ def saveUserDetails(_email, _username, _auth):
 
     if user:
         auth = user.get("authToken")
-        if getAuth(_email) == auth:
+        if auth == _auth:
             users.update_one(
                 {"user": _email},
                 {"$set": {"fname": _username}}
@@ -403,7 +403,7 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
 
     if user:
         auth = user.get("authToken")
-        if getAuth(_email) == auth:
+        if auth == _auth:
             orders = user.get("order_list", [])
             orders.append({
                 "order_no": _order_no,
