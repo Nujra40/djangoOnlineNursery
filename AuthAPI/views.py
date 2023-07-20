@@ -165,8 +165,6 @@ def authAPISignUp(request):
 
         user["user"] = user["email/phone"]
 
-        print(user)
-
         if isPresent(user) == -1:
             if "otp" not in user or user["otp"] == "":
                 otp = str(int(random.random() * 10000))
@@ -333,11 +331,11 @@ def userFunction(request):
             
         elif(data["function"] == "place order"):
             sequence_no = str(int(sequence_no) + 1)
-            if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"])):
-                if razorpayAPI.verifyPayment(data):
+            if razorpayAPI.verifyPayment(data):
+                if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"])):
                     return JsonResponse({"status": "success"})
-            else:
-                return JsonResponse({"status": "failed"})
+                else:
+                    return JsonResponse({"status": "failed"})
         
         elif(data["function"] == "send order list"):
             order_list = getOrderList(data['email'])

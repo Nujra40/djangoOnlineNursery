@@ -1,6 +1,5 @@
-import datetime
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 import json
 from .models import Details
 import time
@@ -33,7 +32,6 @@ def deleteProduct(request):
             return JsonResponse({
                 "status": "delete-success"
             })
-            
             
     return JsonResponse({
         "status": "delete-failed"

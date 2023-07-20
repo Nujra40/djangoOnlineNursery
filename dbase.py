@@ -399,19 +399,18 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
     })
 
     if user:
-        auth = user.get("authToken")
-        if getAuth(_email) == auth:
+        if getAuth(_email) == _auth:
             orders = user.get("order_list", [])
             orders.append({
                 "order_no": _order_no,
-                "order_date": _order_date, 
+                "order_date": _order_date,
+                "status": "Order Placed",
                 "order_details": _order_details
             })
             users.update_one(
                 {"user": _email},
-                {"$set": {"order_list": orders}}
+                {"$set": {"order_list": orders, "containsPendingOrder": "Yes"}}
             )
-            print(user.get("order_list", []))
             return True
     
     else: 
@@ -424,11 +423,18 @@ def getOrderList(_email):
 
     if user:
         orders = user.get("order_list", [])
-        print(orders)
         return orders
     
     else:
         return None
 
+def pendingOrders(admin, _auth):
+    _user = {"user": admin, "authToken": _auth}
+    if verifyAuthToken(_user):
+        _pendingOrders = users.find({
+            "containsPendingOrder": "Yes"
+        })
 
-
+        return list(_pendingOrders)
+    
+    return None
