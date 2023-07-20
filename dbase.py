@@ -352,11 +352,14 @@ def decQuantity(_email, _plantId):
     if user:
         cart_plants = user.get("cart_plants")
         cart_plants[str(_plantId)][0] = cart_plants[str(_plantId)][0] - 1
-        users.update_one(
-            {"user": _email},
-            {"$set": {"cart_plants": cart_plants}}
-        )
-        return True
+        if cart_plants[str(_plantId)][0] > 0:
+            users.update_one(
+                {"user": _email},
+                {"$set": {"cart_plants": cart_plants}}
+            )
+            return True
+        else:
+            return False
     else:
         return False
     
@@ -383,7 +386,7 @@ def saveUserDetails(_email, _username, _auth):
 
     if user:
         auth = user.get("authToken")
-        if getAuth(_email) == auth:
+        if getAuth(_email) == _auth:
             users.update_one(
                 {"user": _email},
                 {"$set": {"fname": _username}}
