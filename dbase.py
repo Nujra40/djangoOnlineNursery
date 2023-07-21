@@ -400,7 +400,9 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth, _address):
     user = users.find_one({
         "user": _email
     })
-
+    del _order_details["razorpay_order_id"]
+    del _order_details["razorpay_payment_id"]
+    del _order_details["razorpay_signature"]
     if user:
         if getAuth(_email) == _auth:
             orders = user.get("order_list", [])
@@ -413,7 +415,7 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth, _address):
             })
             users.update_one(
                 {"user": _email},
-                {"$set": {"order_list": orders, "containsPendingOrder": "Yes"}}
+                {"$set": {"order_list": orders, "containsPendingOrder": "Yes", "latestOrderDate": _order_date}}
             )
             return True
     
@@ -457,3 +459,11 @@ def clearCart(_email, _auth):
                 }
             }
         )
+def orderHistory(admin, _auth, segment):
+    _user = { "user": admin, "authToken": _auth }
+    if verifyAuthToken(_user):
+        _orderHistory = users.find().sort("latestOrderDate", -1).skip((int(segment) - 1) * 10).limit(10)
+    
+        return list(_orderHistory)
+    return None
+        

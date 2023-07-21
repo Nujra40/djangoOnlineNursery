@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'AuthAPI',
     'PlantDatabase',
-    'admin'
+    'tatadmin'
 ]
 
 MIDDLEWARE = [

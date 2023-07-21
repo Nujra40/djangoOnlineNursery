@@ -12,6 +12,7 @@ class Details(models.Model):
     Quantity = models.IntegerField(default=1)
     Add_to_cart = models.CharField(max_length=10, default="Add")
     type = models.CharField(max_length=20, default="")
+    hidden = models.CharField(max_length=1, default="0")
 
 
 

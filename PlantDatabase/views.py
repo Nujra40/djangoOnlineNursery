@@ -37,6 +37,30 @@ def deleteProduct(request):
         "status": "delete-failed"
     })
 
+def toggleVisibility(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode())
+
+        if (
+            data["user"] == "tatwamasi.admin" and
+            data["csrf"] == getCsrf(data["user"]) and
+            data["auth"] == getAuth(data["user"])
+        ):
+            _product = Details.objects.get(id=data["id"])
+            if _product.hidden == "1":
+                _product.hidden = "0"
+            else:
+                _product.hidden = "1"
+            _product.save()
+            
+            return JsonResponse({
+                "status": "toggleVisibility-success"
+            })
+            
+    return JsonResponse({
+        "status": "toggleVisibility-failed"
+    })
+
 
 # Create your views here.
 def setDetails(request):

@@ -17,7 +17,7 @@ from django.urls import path, include
 
 app_name = "djangoOnlineNursery"
 urlpatterns = [
-    path('admin/', include('admin.urls')),
+    path('tatadmin/', include('tatadmin.urls')),
     path('auth/', include('AuthAPI.urls')),
     path('details/', include('PlantDatabase.urls')),
     path('rzpay/', include('paymentsAPI.urls'))
