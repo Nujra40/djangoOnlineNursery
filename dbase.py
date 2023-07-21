@@ -412,7 +412,7 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
             })
             users.update_one(
                 {"user": _email},
-                {"$set": {"order_list": orders, "containsPendingOrder": "Yes"}}
+                {"$set": {"order_list": orders, "containsPendingOrder": "Yes", "latestOrderDate": _order_date}}
             )
             return True
     
@@ -441,3 +441,12 @@ def pendingOrders(admin, _auth):
         return list(_pendingOrders)
     
     return None
+
+def orderHistory(admin, _auth, segment):
+    _user = { "user": admin, "authToken": _auth }
+    if verifyAuthToken(_user):
+        _orderHistory = users.find().sort({ "latestOrderDate": -1 }).skip((segment - 1) * 10).limit(10)
+    
+        return list(_orderHistory)
+    return None
+        
