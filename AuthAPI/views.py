@@ -36,7 +36,8 @@ from dbase import (
     getUserDetails,
     saveUserDetails,
     placeOrder,
-    getOrderList
+    getOrderList,
+    clearCart
 )
 
 sequence_no = "1"
@@ -331,8 +332,8 @@ def userFunction(request):
             
         elif(data["function"] == "place order"):
             sequence_no = str(int(sequence_no) + 1)
-            if razorpayAPI.verifyPayment(data):
-                if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"])):
+            if razorpayAPI.verifyPayment(data["orders"]):
+                if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"], data["address"])):
                     return JsonResponse({"status": "success"})
                 else:
                     return JsonResponse({"status": "failed"})
@@ -342,6 +343,12 @@ def userFunction(request):
             order_list.reverse()
             if(order_list):
                 return JsonResponse({"order_list": order_list, "status": "success"})
+            else:
+                return JsonResponse({"status": "failed"})
+        
+        elif(data["function"] == "clear cart"):
+            if(clearCart(data["email"], data["auth"])):
+                return JsonResponse({"status": "success"})
             else:
                 return JsonResponse({"status": "failed"})
 
