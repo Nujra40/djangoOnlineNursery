@@ -7,5 +7,6 @@ urlpatterns = [
     path("setDetails/", views.setDetails),
     path("getDetails/", views.getDetails),
     path("update/", views.update),
-    path('delete/', views.deleteProduct)
+    path('delete/', views.deleteProduct),
+    path('toggleVisibility/', views.toggleVisibility)
 ]

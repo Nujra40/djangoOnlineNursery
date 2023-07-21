@@ -331,7 +331,7 @@ def userFunction(request):
             
         elif(data["function"] == "place order"):
             sequence_no = str(int(sequence_no) + 1)
-            if razorpayAPI.verifyPayment(data):
+            if razorpayAPI.verifyPayment(data["orders"]):
                 if(placeOrder(data["email"], generateOrderNo(sequence_no.zfill(5)), str(datetime.date.today()), data["orders"], data["auth"])):
                     return JsonResponse({"status": "success"})
                 else:

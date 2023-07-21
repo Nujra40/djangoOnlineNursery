@@ -39,17 +39,19 @@ def getPendingOrders(request):
 def getAllOrders(request):
     if request.method == "POST":
         _req = json.loads(request.body.decode())
-        admin = request["user"]
+        admin = _req["user"]
 
         if admin != 'tatwamasi.admin':
             return JsonResponse({})
         
         authToken = _req["auth"]
         _o = []
-        _orderHistory = orderHistory(admin, authToken, request["segment"])
+        _orderHistory = orderHistory(admin, authToken, _req["segment"])
         if _orderHistory is not None:
             for user in _orderHistory:
+                if "order_list" not in user: continue
                 for order in user["order_list"]:
+                    print(order)
                     if order["status"] == "Order Placed":
                         order["user"] = user["user"]
                         order["name"] = user["fname"] + " " + user["lname"]
