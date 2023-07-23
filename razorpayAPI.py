@@ -9,6 +9,7 @@ def createNewOrder(DATA):
     return client.order.create(data=DATA)
 
 def verifyPayment(verifyRequest):
+    print(verifyRequest["razorpay_order_id"])
     _signature = hmac.new(
         key=razorpayKeySecret.encode(),
         msg=(verifyRequest["razorpay_order_id"] + "|" + verifyRequest["razorpay_payment_id"]).encode(),

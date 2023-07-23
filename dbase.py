@@ -396,7 +396,7 @@ def saveUserDetails(_email, _username, _auth):
     else:
         return False
 
-def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
+def placeOrder(_email, _order_no, _order_date, _order_details, _auth, _address):
     user = users.find_one({
         "user": _email
     })
@@ -412,8 +412,9 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
                 "order_no": _order_no,
                 "order_date": _order_date,
                 "status": "Order Placed",
-                "order_details": _order_details,
-                "amount_paid": amount_paid
+                "amount_paid": amount_paid,
+                "address": _address,
+                "order_details": _order_details
             })
             users.update_one(
                 {"user": _email},
@@ -459,7 +460,22 @@ def pendingOrders(admin, _auth):
     
     return None
 
-def orderHistory(admin, _auth):
+def clearCart(_email, _auth):
+    user = users.find_one({
+        "user": _email,
+        "authToken": _auth
+    })
+
+    if user:
+        users.update_one(
+            {"user": _email},
+            {"$set": {
+                "cart_plants": {}
+                }
+            }
+        )
+        
+def orderHistory(admin, _auth, segment):
     _user = { "user": admin, "authToken": _auth }
     if verifyAuthToken(_user):
         _orderHistory = users.find()
