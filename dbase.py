@@ -400,6 +400,8 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
     user = users.find_one({
         "user": _email
     })
+    amount_paid = _order_details["amount_paid"]
+    del _order_details["amount_paid"]
     del _order_details["razorpay_order_id"]
     del _order_details["razorpay_payment_id"]
     del _order_details["razorpay_signature"]
@@ -410,7 +412,8 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
                 "order_no": _order_no,
                 "order_date": _order_date,
                 "status": "Order Placed",
-                "order_details": _order_details
+                "order_details": _order_details,
+                "amount_paid": amount_paid
             })
             users.update_one(
                 {"user": _email},
@@ -420,6 +423,18 @@ def placeOrder(_email, _order_no, _order_date, _order_details, _auth):
     
     else: 
         return False
+
+def _updateDeliveryStatus(admin, auth, order_no, update_message):
+    _user = {"user": admin, "authToken": auth}
+    if verifyAuthToken(_user):
+        users.update_one(
+            { "order_list.order_no": order_no },
+            { "$set": { "order_list.$.status": update_message } }
+        )
+        return True
+    
+    return False
+
 
 def getOrderList(_email):
     user = users.find_one({
@@ -444,10 +459,10 @@ def pendingOrders(admin, _auth):
     
     return None
 
-def orderHistory(admin, _auth, segment):
+def orderHistory(admin, _auth):
     _user = { "user": admin, "authToken": _auth }
     if verifyAuthToken(_user):
-        _orderHistory = users.find().sort("latestOrderDate", -1).skip((int(segment) - 1) * 10).limit(10)
+        _orderHistory = users.find()
     
         return list(_orderHistory)
     return None
